@@ -1930,11 +1930,18 @@
         function initAudio() {
           if (!audioCtx) {
             try {
+              // Fallback necesar pentru iOS Safari
               const AudioCtx = window.AudioContext || window.webkitAudioContext;
               if (AudioCtx) audioCtx = new AudioCtx();
-            } catch (e) {}
+            } catch (e) {
+              console.warn("Web Audio API nu este suportat:", e);
+            }
           }
-          if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+
+          // iOS necesită ca starea să fie "resumed" în contextul aceluiași click
+          if (audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
 
           if (audioCtx && !mediaSourceConnected && audio) {
             try {
@@ -1947,6 +1954,7 @@
               analyserR.fftSize = 256;
               analyserL.smoothingTimeConstant = 0.65;
               analyserR.smoothingTimeConstant = 0.65;
+
               src.connect(splitter);
               try {
                 splitter.connect(analyserL, 0);
@@ -1957,7 +1965,9 @@
               }
               src.connect(audioCtx.destination);
               mediaSourceConnected = true;
-            } catch (e) {}
+            } catch (e) {
+              console.error("Eroare de rutare audio:", e);
+            }
           }
         }
 
@@ -2177,6 +2187,9 @@
           if (!audio) return;
 
           if (!isPlaying) {
+            // FIX iOS: Inițializăm AudioContext STRICT sincron la click!
+            initAudio();
+
             isPlaying = true;
             retryCount = 0;
             setBufferingUI(true);
@@ -2194,7 +2207,7 @@
             if (playPromise !== undefined) {
               playPromise
                 .then(() => {
-                  initAudio();
+                  // Aici doar pornim bucla de animație, deoarece AudioContext a fost deja pornit
                   if (!loopRunning) {
                     loopRunning = true;
                     animationLoop();
@@ -2205,7 +2218,6 @@
                   stopPlaybackUI();
                 });
             } else {
-              initAudio();
               if (!loopRunning) {
                 loopRunning = true;
                 animationLoop();
