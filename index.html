@@ -1573,13 +1573,18 @@
           const savedLang = localStorage.getItem("userLang");
           if (savedLang && (savedLang === "ro" || savedLang === "en"))
             return savedLang;
-          const browserLang =
-            navigator.language || navigator.userLanguage || "";
-          if (browserLang.toLowerCase().startsWith("ro")) return "ro";
+
+          // Verificare bazată pe fusul orar sau limba browserului pentru România
           try {
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
             if (tz.includes("Bucharest") || tz.includes("Romania")) return "ro";
           } catch (e) {}
+
+          const browserLang =
+            navigator.language || navigator.userLanguage || "";
+          if (browserLang.toLowerCase().startsWith("ro")) return "ro";
+
+          // Implicit pentru orice altă țară din afara României
           return "en";
         }
 
@@ -1998,6 +2003,8 @@
           let targetAngleR = -42;
           let eqTargets = new Array(11).fill(0.15);
 
+          let hasRealData = false;
+
           if (!isBuffering && analyserL && analyserR) {
             const arrL = new Uint8Array(analyserL.frequencyBinCount);
             const arrR = new Uint8Array(analyserR.frequencyBinCount);
@@ -2023,6 +2030,7 @@
             const rmsR = Math.sqrt(sumSqR / countBins);
 
             if (rmsL > 2 || rmsR > 2) {
+              hasRealData = true;
               targetAngleL = mapRMS(rmsL);
               targetAngleR = mapRMS(rmsR);
 
@@ -2045,6 +2053,8 @@
                 bands.push({ raw: (avgL + avgR) / 2, boost });
               }
 
+              bands.push({ raw: 0, boost: 1 });
+
               bands.forEach((b, i) => {
                 if (i < 11) {
                   const val = (b.raw / 255) * b.boost;
@@ -2054,6 +2064,20 @@
                   );
                 }
               });
+            }
+          }
+
+          // Fallback animation for iOS or cases where analyser data is inactive/blocked
+          if (!hasRealData && !isBuffering && isPlaying) {
+            const timeNow = Date.now() * 0.003;
+            targetAngleL =
+              -25 + Math.sin(timeNow * 2.1) * 12 + Math.cos(timeNow * 5.3) * 6;
+            targetAngleR =
+              -25 + Math.cos(timeNow * 2.4) * 12 + Math.sin(timeNow * 4.8) * 6;
+
+            for (let i = 0; i < 11; i++) {
+              const wave = Math.sin(timeNow * 4 + i * 0.6) * 0.5 + 0.5;
+              eqTargets[i] = Math.max(0.2, wave * 0.85);
             }
           }
 
