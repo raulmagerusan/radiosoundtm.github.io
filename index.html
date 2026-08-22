@@ -26,8 +26,8 @@
     />
     <meta name="theme-color" content="#0d0e11" />
 
-    <link rel="preconnect" href="https://stream.radiosoundtm.com" crossorigin />
-    <link rel="dns-prefetch" href="https://stream.radiosoundtm.com" />
+    <link rel="preconnect" href="https://s2.citrus3.com" crossorigin />
+    <link rel="dns-prefetch" href="https://s2.citrus3.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1314,6 +1314,8 @@
                 <div style="display: flex; align-items: center; gap: 8px">
                   <img
                     id="widgetCoverImg"
+                    data-widget="mcp-cover-image"
+                    data-name="radiosoundtm"
                     src="logo.png"
                     style="
                       width: 42px;
@@ -1321,6 +1323,7 @@
                       border-radius: 6px;
                       object-fit: cover;
                       border: 1px solid var(--border-color);
+                      float: left;
                     "
                     alt=""
                   />
@@ -1334,7 +1337,13 @@
                       "
                       id="streamStatusText"
                     >
-                      Online
+                      <span
+                        data-widget="mcp-stream-status"
+                        data-name="radiosoundtm"
+                        data-online-text="Online"
+                        data-offline-text="Offline"
+                        >Online</span
+                      >
                     </div>
                     <div
                       id="nowPlayingTitle"
@@ -1348,7 +1357,12 @@
                         max-width: 170px;
                       "
                     >
-                      Live 24/7
+                      <span
+                        data-widget="mcp-custom-text"
+                        data-name="radiosoundtm"
+                        data-format="%nowplaying%"
+                        >Live 24/7</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -1357,8 +1371,28 @@
                   <span
                     id="connectionCount"
                     style="color: var(--text-main); font-weight: 600"
-                    >0</span
                   >
+                    <span
+                      data-widget="mcp-custom-text"
+                      data-name="radiosoundtm"
+                      data-format="%connections%"
+                      >0</span
+                    >
+                  </span>
+                </div>
+                <div style="margin-top: 4px">
+                  <a
+                    href="https://s2.citrus3.com:8494/stream"
+                    alt="/stream"
+                    target="_blank"
+                    style="display: inline-flex; align-items: center"
+                  >
+                    <img
+                      src="https://s2.citrus3.com:2000/system/theme/Material/images/vlc.gif"
+                      border="0"
+                      alt="VLC Stream"
+                    />
+                  </a>
                 </div>
               </div>
 
@@ -1748,7 +1782,7 @@
 
         setLanguage(currentLang);
 
-        const baseStreamUrl = "https://stream.radiosoundtm.com/radio.mp3";
+        const baseStreamUrl = "https://s2.citrus3.com:8494/stream";
         const audio = document.getElementById("radioAudio");
         const playBtnLogo = document.getElementById("playBtnLogo");
         const statusBadgeUI = document.getElementById("statusBadgeUI");
@@ -1864,14 +1898,17 @@
             } catch (e) {}
 
             const connEl = document.getElementById("connectionCount");
-            if (connEl) connEl.textContent = listeners;
+            if (connEl && !connEl.querySelector("[data-widget]")) {
+              connEl.textContent = listeners;
+            }
 
             const titleEl = document.getElementById("nowPlayingTitle");
 
             if (!songText || songText.trim() === "" || songText === " - ") {
               trackArt.src = "logo.png";
               if (widgetCoverImg) widgetCoverImg.src = "logo.png";
-              if (titleEl) titleEl.textContent = "Live 24/7";
+              if (titleEl && !titleEl.querySelector("[data-widget]"))
+                titleEl.textContent = "Live 24/7";
               currentLoadedSong = "";
               return;
             }
@@ -1895,7 +1932,7 @@
                 parsedTitle = parts.slice(1).join("-").trim();
               }
 
-              if (titleEl) {
+              if (titleEl && !titleEl.querySelector("[data-widget]")) {
                 titleEl.textContent = parsedTitle;
                 titleEl.title = `${parsedArtist} - ${parsedTitle}`;
               }
