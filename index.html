@@ -1839,7 +1839,6 @@
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 4000);
-            // Azuracast API status endpoint example
             const response = await fetch(
               "https://stream.radiosoundtm.com/api/nowplaying/radio_sound_tm",
               { signal: controller.signal },
