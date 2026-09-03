@@ -5,9 +5,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title id="pageTitle">
-      Radio Sound TM - Muzică de cea mai bună calitate!
-    </title>
+    <title id="pageTitle">Radio Sound TM - Refining music!</title>
 
     <link rel="icon" href="logo.png" type="image/png" />
 
@@ -1291,15 +1289,6 @@
                     </div>
                   </div>
                 </div>
-                <div style="font-size: 0.68rem; color: var(--text-muted)">
-                  Ascultători:
-                  <span
-                    id="connectionCount"
-                    style="color: var(--text-main); font-weight: 600"
-                  >
-                    0
-                  </span>
-                </div>
               </div>
 
               <div class="equalizer" id="equalizer">
@@ -1740,7 +1729,6 @@
 
             let songText = "";
             let serverArt = "";
-            let listeners = 0;
 
             try {
               if (data && data.now_playing && data.now_playing.song) {
@@ -1748,15 +1736,7 @@
                 songText = `${song.artist} - ${song.title}`;
                 serverArt = song.art || "";
               }
-              if (data && data.listeners) {
-                listeners = data.listeners.current || 0;
-              }
             } catch (e) {}
-
-            const connEl = document.getElementById("connectionCount");
-            if (connEl) {
-              connEl.textContent = listeners;
-            }
 
             const titleEl = document.getElementById("nowPlayingTitle");
             const streamStatusText =
