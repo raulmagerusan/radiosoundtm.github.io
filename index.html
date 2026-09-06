@@ -1244,9 +1244,9 @@
                     id="widgetCoverImg"
                     src="logo.png"
                     style="
-                      width: 66px;
-                      height: 66px;
-                      border-radius: 8px;
+                      width: 90px;
+                      height: 90px;
+                      border-radius: 12px;
                       object-fit: cover;
                       border: 1px solid var(--border-color);
                       flex-shrink: 0;
@@ -1282,7 +1282,7 @@
                 </div>
               </div>
 
-              <!-- Stereo Wild Oscilloscope CRT Panel -->
+              <!-- Retro Oscilloscope CRT Panel -->
               <div class="oscilloscope-panel">
                 <div class="crt-screen">
                   <canvas id="oscilloscopeCanvas"></canvas>
@@ -1653,10 +1653,9 @@
         function resizeCanvas() {
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
-          const scale = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
-          canvas.width = rect.width * scale;
-          canvas.height = rect.height * scale;
-          if (ctx) ctx.scale(scale, scale);
+          canvas.width = rect.width * window.devicePixelRatio;
+          canvas.height = rect.height * window.devicePixelRatio;
+          if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
         }
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
@@ -1822,8 +1821,8 @@
             try {
               const src = audioCtx.createMediaElementSource(audio);
               analyser = audioCtx.createAnalyser();
-              analyser.fftSize = 256;
-              analyser.smoothingTimeConstant = 0.2;
+              analyser.fftSize = 1024;
+              analyser.smoothingTimeConstant = 0.3;
 
               src.connect(analyser);
               analyser.connect(audioCtx.destination);
@@ -1870,13 +1869,10 @@
           let targetAngleR = -42;
 
           if (!isBuffering && ctx && canvas) {
-            const renderScale = isIOS
-              ? 1
-              : Math.min(window.devicePixelRatio, 2);
-            const width = canvas.width / renderScale;
-            const height = canvas.height / renderScale;
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
 
-            ctx.fillStyle = "rgba(7, 18, 10, 0.4)";
+            ctx.fillStyle = "rgba(7, 18, 10, 0.35)";
             ctx.fillRect(0, 0, width, height);
 
             let timeData = null;
@@ -1894,78 +1890,58 @@
               rmsVal = Math.sqrt(sumSq / timeData.length);
             }
 
-            // High-energy turbulent stereo animation generator for iOS and fallback cases
             const now = Date.now();
-            if (!timeData || rmsVal < 0.5) {
-              rmsVal = 26 + Math.abs(Math.sin(now / 110)) * 18;
+
+            // Desktop uses clean standard data; iOS uses active fallback simulation so it moves smoothly
+            if (isIOS && (!timeData || rmsVal < 0.5) && !isBuffering) {
+              timeData = new Uint8Array(128);
+              for (let i = 0; i < timeData.length; i++) {
+                const wave =
+                  Math.sin(i / 16 + now / 90) *
+                    Math.cos(i / 32 + now / 140) *
+                    38 +
+                  Math.sin(i / 8 + now / 60) * 16 +
+                  (Math.random() - 0.5) * 6;
+                timeData[i] = 128 + wave;
+              }
+              rmsVal = 24 + Math.abs(Math.sin(now / 150)) * 16;
             }
 
-            // Generate Channel Left (Green) and Channel Right (Cyan/Blue-ish glowing dual trace)
-            const len = 64;
-            const dataL = new Float32Array(len);
-            const dataR = new Float32Array(len);
+            if (timeData) {
+              ctx.lineWidth = 1.5;
+              ctx.strokeStyle = "#56cb4c";
+              ctx.shadowBlur = 8;
+              ctx.shadowColor = "#56cb4c";
+              ctx.beginPath();
 
-            for (let i = 0; i < len; i++) {
-              let t = i / len;
-              let waveL =
-                Math.sin(t * Math.PI * 4 + now / 65) *
-                  Math.cos(t * Math.PI * 2 - now / 90) *
-                  (rmsVal * 0.9) +
-                Math.sin(t * Math.PI * 8 + now / 40) * 8;
+              const sliceWidth = width / timeData.length;
+              let x = 0;
 
-              let waveR =
-                Math.cos(t * Math.PI * 4 - now / 70) *
-                  Math.sin(t * Math.PI * 3 + now / 80) *
-                  (rmsVal * 0.85) +
-                Math.cos(t * Math.PI * 6 - now / 50) * 9;
+              for (let i = 0; i < timeData.length; i++) {
+                const v = timeData[i] / 128.0;
+                const y = (v * height) / 2;
 
-              dataL[i] = waveL;
-              dataR[i] = waveR;
+                if (i === 0) {
+                  ctx.moveTo(x, y);
+                } else {
+                  ctx.lineTo(x, y);
+                }
+                x += sliceWidth;
+              }
+              ctx.stroke();
             }
 
-            // Draw Channel Left Stereo Wave (Green CRT Laser)
-            ctx.lineWidth = 1.6;
-            ctx.strokeStyle = "#56cb4c";
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "#56cb4c";
-            ctx.beginPath();
-            let sliceW = width / len;
-            for (let i = 0; i < len; i++) {
-              let x = i * sliceW;
-              let y = height / 2 + dataL[i] * 0.7;
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-
-            // Draw Channel Right Stereo Wave (Slightly offset Cyan/Teal trace for true vintage stereo scope look)
-            ctx.lineWidth = 1.2;
-            ctx.strokeStyle = "#00e5ff";
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "#00e5ff";
-            ctx.beginPath();
-            for (let i = 0; i < len; i++) {
-              let x = i * sliceW;
-              let y = height / 2 + dataR[i] * 0.75;
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-
-            targetAngleL = mapRMS(rmsVal * 1.85);
-            targetAngleR = mapRMS(rmsVal * 1.75);
+            targetAngleL = mapRMS(rmsVal * 1.8);
+            targetAngleR = mapRMS(rmsVal * 1.7);
           } else if (ctx && canvas) {
-            const renderScale = isIOS
-              ? 1
-              : Math.min(window.devicePixelRatio, 2);
-            const width = canvas.width / renderScale;
-            const height = canvas.height / renderScale;
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
             ctx.fillStyle = "rgba(7, 18, 10, 1)";
             ctx.fillRect(0, 0, width, height);
           }
 
-          const springK = 0.55;
-          const damping = 0.45;
+          const springK = 0.45;
+          const damping = 0.48;
           velL = (velL + (targetAngleL - currentAngleL) * springK) * damping;
           currentAngleL += velL;
           velR = (velR + (targetAngleR - currentAngleR) * springK) * damping;
