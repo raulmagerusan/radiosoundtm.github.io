@@ -1493,6 +1493,7 @@
             "Radio Sound TM este frecvența ta de negăsit în altă parte. Descoperă muzică electronică underground de calitate superioară: Drum and Bass, Jungle, Breakbeat și House, transmise 24/7 direct din Timișoara. Conectează-te și simte ritmul!",
           onAirConnected: "On-Air",
           onAirOff: "Off-Air",
+          connectingText: "Se conectează...",
           downloadTitle: "Descarcă Aplicația",
           downloadSub: "Ascultă Radio Sound TM direct de pe telefonul tău!",
           aboutHeader: "Refining music!",
@@ -1514,6 +1515,7 @@
             "Radio Sound TM is your go-to underground electronic music station. Discover high-quality Drum and Bass, Jungle, Breakbeat, and House 24/7 live from Timișoara.",
           onAirConnected: "On-Air",
           onAirOff: "Off-Air",
+          connectingText: "Connecting...",
           downloadTitle: "Download App",
           downloadSub: "Listen to Radio Sound TM directly from your phone!",
           aboutHeader: "Refining music!",
@@ -1543,7 +1545,7 @@
           txtOnAir.textContent = t.onAirConnected;
           statusBadgeUI.className = "status-badge connected";
         } else if (isBuffering) {
-          txtOnAir.textContent = "Se conectează...";
+          txtOnAir.textContent = t.connectingText;
           statusBadgeUI.className = "status-badge buffering";
         } else {
           txtOnAir.textContent = t.onAirOff;
@@ -1607,8 +1609,17 @@
       document.addEventListener("DOMContentLoaded", function () {
         function determineInitialLanguage() {
           const savedLang = localStorage.getItem("userLang");
-          if (savedLang && (savedLang === "ro" || savedLang === "en"))
+          if (savedLang && (savedLang === "ro" || savedLang === "en")) {
             return savedLang;
+          }
+          const browserLang = (
+            navigator.language ||
+            navigator.userLanguage ||
+            ""
+          ).toLowerCase();
+          if (browserLang.startsWith("en")) {
+            return "en";
+          }
           return "ro";
         }
 
@@ -1892,7 +1903,6 @@
 
             const now = Date.now();
 
-            // Desktop uses clean standard data; iOS uses active fallback simulation so it moves smoothly
             if (isIOS && (!timeData || rmsVal < 0.5) && !isBuffering) {
               timeData = new Uint8Array(128);
               for (let i = 0; i < timeData.length; i++) {
