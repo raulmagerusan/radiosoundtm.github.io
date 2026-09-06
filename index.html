@@ -770,7 +770,7 @@
         word-break: break-word;
       }
 
-      /* Retro Oscilloscope CRT Panel Replacement */
+      /* iOS-Optimized Fast Oscilloscope / Waveform Panel */
       .oscilloscope-panel {
         position: relative;
         width: 100%;
@@ -1647,16 +1647,18 @@
         if (needleL) needleL.setAttribute("transform", "rotate(-42, 35, 37)");
         if (needleR) needleR.setAttribute("transform", "rotate(-42, 35, 37)");
 
-        // Oscilloscope Canvas Setup
+        // Oscilloscope Canvas Setup (Optimized with low resolution scaling for buttery smooth iOS performance)
         const canvas = document.getElementById("oscilloscopeCanvas");
         const ctx = canvas ? canvas.getContext("2d") : null;
 
         function resizeCanvas() {
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
-          canvas.width = rect.width * window.devicePixelRatio;
-          canvas.height = rect.height * window.devicePixelRatio;
-          if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+          // Force lower internal resolution on iOS/Mobile to prevent any frame rate stuttering
+          const scale = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
+          canvas.width = rect.width * scale;
+          canvas.height = rect.height * scale;
+          if (ctx) ctx.scale(scale, scale);
         }
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
@@ -1824,8 +1826,8 @@
             try {
               const src = audioCtx.createMediaElementSource(audio);
               analyser = audioCtx.createAnalyser();
-              analyser.fftSize = 1024;
-              analyser.smoothingTimeConstant = 0.3;
+              analyser.fftSize = 256; // Reduced FFT size for lightning-fast buffer calculations
+              analyser.smoothingTimeConstant = 0.2;
 
               src.connect(analyser);
               analyser.connect(audioCtx.destination);
@@ -1872,15 +1874,18 @@
           let targetAngleR = -42;
 
           if (!isBuffering && ctx && canvas) {
-            const width = canvas.width / window.devicePixelRatio;
-            const height = canvas.height / window.devicePixelRatio;
+            const renderScale = isIOS
+              ? 1
+              : Math.min(window.devicePixelRatio, 2);
+            const width = canvas.width / renderScale;
+            const height = canvas.height / renderScale;
 
-            ctx.fillStyle = "rgba(7, 18, 10, 0.35)";
+            ctx.fillStyle = "rgba(7, 18, 10, 0.4)";
             ctx.fillRect(0, 0, width, height);
 
             ctx.lineWidth = 1.5;
             ctx.strokeStyle = "#56cb4c";
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 4;
             ctx.shadowColor = "#56cb4c";
             ctx.beginPath();
 
@@ -1906,24 +1911,22 @@
 
             if ((isIOS || !timeData || rmsVal < 0.5) && !isBuffering) {
               const now = Date.now();
-              timeData = new Uint8Array(128);
+              timeData = new Uint8Array(64);
               for (let i = 0; i < timeData.length; i++) {
                 const wave =
-                  Math.sin(i / 16 + now / 90) *
-                    Math.cos(i / 32 + now / 140) *
-                    38 +
-                  Math.sin(i / 8 + now / 60) * 16 +
-                  (Math.random() - 0.5) * 6;
+                  Math.sin(i / 12 + now / 80) * 32 +
+                  Math.cos(i / 6 + now / 120) * 14;
                 timeData[i] = 128 + wave;
               }
-              rmsVal = 22;
+              rmsVal = 20;
             }
 
             if (timeData) {
-              const sliceWidth = width / timeData.length;
+              const step = Math.max(1, Math.floor(timeData.length / 40));
+              const sliceWidth = width / (timeData.length / step);
               let x = 0;
 
-              for (let i = 0; i < timeData.length; i++) {
+              for (let i = 0; i < timeData.length; i += step) {
                 const v = timeData[i] / 128.0;
                 const y = (v * height) / 2;
 
@@ -1940,8 +1943,11 @@
             targetAngleL = mapRMS(rmsVal * 1.8);
             targetAngleR = mapRMS(rmsVal * 1.7);
           } else if (ctx && canvas) {
-            const width = canvas.width / window.devicePixelRatio;
-            const height = canvas.height / window.devicePixelRatio;
+            const renderScale = isIOS
+              ? 1
+              : Math.min(window.devicePixelRatio, 2);
+            const width = canvas.width / renderScale;
+            const height = canvas.height / renderScale;
             ctx.fillStyle = "rgba(7, 18, 10, 1)";
             ctx.fillRect(0, 0, width, height);
           }
