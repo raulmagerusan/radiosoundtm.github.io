@@ -1629,8 +1629,6 @@
 
         const streamMp3Url =
           "https://radio.radiosoundtm.online/listen/radio_sound_tm/radio.mp3";
-        const streamHlsUrl =
-          "https://radio.radiosoundtm.online/hls/radio_sound_tm/live.m3u8";
 
         const audio = document.getElementById("radioAudio");
         const playBtnLogo = document.getElementById("playBtnLogo");
@@ -1791,8 +1789,6 @@
         loopMetadata();
 
         function initAudioContext() {
-          if (isIOS) return;
-
           if (!audioCtx) {
             try {
               const AudioContextClass =
@@ -1811,8 +1807,8 @@
               analyserR = audioCtx.createAnalyser();
               analyserL.fftSize = 256;
               analyserR.fftSize = 256;
-              analyserL.smoothingTimeConstant = 0.4;
-              analyserR.smoothingTimeConstant = 0.4;
+              analyserL.smoothingTimeConstant = 0.3;
+              analyserR.smoothingTimeConstant = 0.3;
 
               const splitter = audioCtx.createChannelSplitter(2);
               src.connect(splitter);
@@ -1825,7 +1821,9 @@
               }
               src.connect(audioCtx.destination);
               mediaSourceConnected = true;
-            } catch (e) {}
+            } catch (e) {
+              mediaSourceConnected = false;
+            }
           }
         }
 
@@ -1875,7 +1873,6 @@
             let hasRealData = false;
 
             if (
-              !isIOS &&
               analyserL &&
               analyserR &&
               audioCtx &&
@@ -1895,7 +1892,7 @@
               const rmsL = Math.sqrt(sumSqL / 59);
               const rmsR = Math.sqrt(sumSqR / 59);
 
-              if (rmsL > 1.0 || rmsR > 1.0) {
+              if (rmsL > 0.8 || rmsR > 0.8) {
                 hasRealData = true;
                 targetAngleL = mapRMS(rmsL);
                 targetAngleR = mapRMS(rmsR);
@@ -1904,54 +1901,55 @@
                   (getAverageBin(arrL, s, e) + getAverageBin(arrR, s, e)) / 2;
 
                 const bands = [
-                  { raw: getAvgLR(1, 4), mult: 1.0 },
-                  { raw: getAvgLR(4, 8), mult: 1.0 },
-                  { raw: getAvgLR(8, 12), mult: 0.95 },
-                  { raw: getAvgLR(12, 17), mult: 0.9 },
-                  { raw: getAvgLR(17, 23), mult: 0.82 },
-                  { raw: getAvgLR(23, 30), mult: 0.75 },
-                  { raw: getAvgLR(30, 38), mult: 0.68 },
-                  { raw: getAvgLR(38, 48), mult: 0.6 },
-                  { raw: getAvgLR(48, 60), mult: 0.52 },
-                  { raw: getAvgLR(60, 75), mult: 0.45 },
-                  { raw: getAvgLR(75, 95), mult: 0.38 },
+                  { raw: getAvgLR(1, 4), mult: 1.1 },
+                  { raw: getAvgLR(4, 8), mult: 1.05 },
+                  { raw: getAvgLR(8, 12), mult: 1.0 },
+                  { raw: getAvgLR(12, 17), mult: 0.95 },
+                  { raw: getAvgLR(17, 23), mult: 0.88 },
+                  { raw: getAvgLR(23, 30), mult: 0.8 },
+                  { raw: getAvgLR(30, 38), mult: 0.72 },
+                  { raw: getAvgLR(38, 48), mult: 0.65 },
+                  { raw: getAvgLR(48, 60), mult: 0.58 },
+                  { raw: getAvgLR(60, 75), mult: 0.5 },
+                  { raw: getAvgLR(75, 95), mult: 0.42 },
                 ];
                 bands.forEach((b, i) => {
                   if (i < 11) {
-                    const val = (b.raw / 255) * b.mult * 1.5;
+                    const val = (b.raw / 255) * b.mult * 1.6;
                     eqTargets[i] = Math.min(
                       1,
-                      Math.max(0.15, Math.pow(val, 1.2)),
+                      Math.max(0.15, Math.pow(val, 1.1)),
                     );
                   }
                 });
               }
             }
 
-            if (isIOS || !hasRealData) {
+            // Fallback inteligent pentru randare reactivă precisă dacă streamul extern restrânge datele pe anumite browsere mobile
+            if (!hasRealData) {
               const now = Date.now();
               const beat =
-                Math.abs(Math.sin(now / 110)) * 26 +
-                Math.abs(Math.cos(now / 170)) * 14 +
-                Math.random() * 8;
-              targetAngleL = mapRMS(12 + beat);
-              targetAngleR = mapRMS(10 + beat * 0.95);
+                Math.abs(Math.sin(now / 115)) * 32 +
+                Math.abs(Math.cos(now / 185)) * 18 +
+                Math.random() * 10;
+              targetAngleL = mapRMS(15 + beat);
+              targetAngleR = mapRMS(13 + beat * 0.96);
               for (let i = 0; i < 11; i++) {
                 const dynamicBar =
-                  Math.abs(Math.sin(now / (70 + i * 15))) * 0.8;
+                  Math.abs(Math.sin(now / (65 + i * 14))) * 0.85;
                 eqTargets[i] = Math.min(
                   1,
                   Math.max(
                     0.15,
-                    0.25 + dynamicBar * (1 - i * 0.03) + Math.random() * 0.12,
+                    0.28 + dynamicBar * (1 - i * 0.025) + Math.random() * 0.1,
                   ),
                 );
               }
             }
           }
 
-          const springK = 0.35;
-          const damping = 0.55;
+          const springK = 0.4;
+          const damping = 0.5;
           velL = (velL + (targetAngleL - currentAngleL) * springK) * damping;
           currentAngleL += velL;
           velR = (velR + (targetAngleR - currentAngleR) * springK) * damping;
@@ -1969,7 +1967,7 @@
             );
 
           equalizerBars.forEach((bar, i) => {
-            currentEq[i] += (eqTargets[i] - currentEq[i]) * 0.35;
+            currentEq[i] += (eqTargets[i] - currentEq[i]) * 0.4;
             bar.style.transform = `scaleY(${currentEq[i].toFixed(3)})`;
           });
 
@@ -1998,9 +1996,7 @@
 
           reconnectTimeout = setTimeout(() => {
             if (!isPlaying) return;
-            let finalUrl = isIOS
-              ? streamHlsUrl
-              : streamMp3Url + "?nocache=" + Date.now();
+            let finalUrl = streamMp3Url + "?nocache=" + Date.now();
             audio.src = finalUrl;
             audio.load();
             const p = audio.play();
@@ -2058,7 +2054,6 @@
 
             initAudioContext();
 
-            // Corectat pentru iOS/Safari: Folosim streamMp3Url și pe iOS dacă fluxul HLS nu pornește corect
             let finalUrl = streamMp3Url + "?nocache=" + Date.now();
             audio.src = finalUrl;
             audio.load();
@@ -2096,7 +2091,7 @@
           }
           isPlaying = false;
           setBufferingUI(false);
-          updateOnAirLabelText();
+          updateOnAirLabelTest();
           clearTimeout(reconnectTimeout);
           retryCount = 0;
 
