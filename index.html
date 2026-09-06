@@ -1698,12 +1698,14 @@
           ) {
             trackArt.src = serverArt;
             if (widgetCoverImg) widgetCoverImg.src = serverArt;
+            updateMediaSession(artist, title, serverArt);
             return;
           }
 
           if (!title || title === "Live 24/7" || title === "Radio Sound TM") {
             trackArt.src = "logo.png";
             if (widgetCoverImg) widgetCoverImg.src = "logo.png";
+            updateMediaSession("Radio Sound TM", "Live 24/7", "logo.png");
             return;
           }
 
@@ -1729,13 +1731,41 @@
               );
               trackArt.src = artworkUrl;
               if (widgetCoverImg) widgetCoverImg.src = artworkUrl;
+              updateMediaSession(artist, title, artworkUrl);
             } else {
               trackArt.src = "logo.png";
               if (widgetCoverImg) widgetCoverImg.src = "logo.png";
+              updateMediaSession(artist, title, "logo.png");
             }
           } catch (err) {
             trackArt.src = "logo.png";
             if (widgetCoverImg) widgetCoverImg.src = "logo.png";
+            updateMediaSession(artist, title, "logo.png");
+          }
+        }
+
+        function updateMediaSession(artist, title, artworkUrl) {
+          if ("mediaSession" in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: title,
+              artist: artist,
+              album: "Radio Sound TM",
+              artwork: [
+                { src: artworkUrl, sizes: "96x96", type: "image/png" },
+                { src: artworkUrl, sizes: "128x128", type: "image/png" },
+                { src: artworkUrl, sizes: "192x192", type: "image/png" },
+                { src: artworkUrl, sizes: "256x256", type: "image/png" },
+                { src: artworkUrl, sizes: "384x384", type: "image/png" },
+                { src: artworkUrl, sizes: "512x512", type: "image/png" },
+              ],
+            });
+
+            navigator.mediaSession.setActionHandler("play", () => {
+              if (!isPlaying) togglePlay();
+            });
+            navigator.mediaSession.setActionHandler("pause", () => {
+              if (isPlaying) togglePlay();
+            });
           }
         }
 
@@ -1773,6 +1803,7 @@
               if (titleEl) titleEl.textContent = "Live 24/7";
               if (streamStatusText)
                 streamStatusText.textContent = "Radio Sound TM";
+              updateMediaSession("Radio Sound TM", "Live 24/7", "logo.png");
               currentLoadedSong = "";
               return;
             }
@@ -2016,6 +2047,13 @@
           }
         });
 
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden && isPlaying && audio.paused) {
+            retryCount = 0;
+            reconnectStream();
+          }
+        });
+
         if (audio) {
           audio.addEventListener("waiting", () => {
             if (isPlaying) setBufferingUI(true);
@@ -2031,6 +2069,9 @@
           });
           audio.addEventListener("error", () => {
             if (isPlaying) reconnectStream();
+          });
+          audio.addEventListener("suspend", () => {
+            if (isPlaying && audio.paused) reconnectStream();
           });
         }
 
@@ -2100,6 +2141,10 @@
           if (turntable) turntable.classList.remove("playing");
 
           if (tonearmEl) tonearmEl.style.transform = `rotate(-32deg)`;
+
+          if ("mediaSession" in navigator) {
+            navigator.mediaSession.metadata = null;
+          }
         }
 
         if (playBtnLogo) {
