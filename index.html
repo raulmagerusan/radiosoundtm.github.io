@@ -1653,6 +1653,8 @@
         const tonearmEl = document.getElementById("tonearm");
         const needleL = document.getElementById("needleL");
         const needleR = document.getElementById("needleR");
+        const trackArt = document.getElementById("trackArt");
+        const widgetCoverImg = document.getElementById("widgetCoverImg");
 
         if (needleL) needleL.setAttribute("transform", "rotate(-42, 35, 37)");
         if (needleR) needleR.setAttribute("transform", "rotate(-42, 35, 37)");
@@ -1690,58 +1692,17 @@
         let reconnectTimeout = null;
         let retryCount = 0;
 
-        async function fetchCoverAndDetails(artist, title, serverArt) {
-          if (
-            serverArt &&
-            serverArt.trim() !== "" &&
-            !serverArt.endsWith("logo.png")
-          ) {
+        function fetchCoverAndDetails(artist, title, serverArt) {
+          if (serverArt && serverArt.trim() !== "") {
             trackArt.src = serverArt;
             if (widgetCoverImg) widgetCoverImg.src = serverArt;
             updateMediaSession(artist, title, serverArt);
             return;
           }
 
-          if (!title || title === "Live 24/7" || title === "Radio Sound TM") {
-            trackArt.src = "logo.png";
-            if (widgetCoverImg) widgetCoverImg.src = "logo.png";
-            updateMediaSession("Radio Sound TM", "Live 24/7", "logo.png");
-            return;
-          }
-
-          try {
-            const cleanTitle = title.replace(/\(.*?\)|\[.*?\]/g, "").trim();
-            const cleanArtist =
-              artist === "Radio Sound TM" || !artist ? "" : artist.trim();
-            const query = encodeURIComponent(`${cleanArtist} ${cleanTitle}`);
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000);
-            const response = await fetch(
-              `https://itunes.apple.com/search?term=${query}&entity=song&limit=1`,
-              { signal: controller.signal },
-            );
-            clearTimeout(timeoutId);
-
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-              const artworkUrl = data.results[0].artworkUrl100.replace(
-                "100x100bb",
-                "600x600bb",
-              );
-              trackArt.src = artworkUrl;
-              if (widgetCoverImg) widgetCoverImg.src = artworkUrl;
-              updateMediaSession(artist, title, artworkUrl);
-            } else {
-              trackArt.src = "logo.png";
-              if (widgetCoverImg) widgetCoverImg.src = "logo.png";
-              updateMediaSession(artist, title, "logo.png");
-            }
-          } catch (err) {
-            trackArt.src = "logo.png";
-            if (widgetCoverImg) widgetCoverImg.src = "logo.png";
-            updateMediaSession(artist, title, "logo.png");
-          }
+          trackArt.src = "logo.png";
+          if (widgetCoverImg) widgetCoverImg.src = "logo.png";
+          updateMediaSession(artist, title, "logo.png");
         }
 
         function updateMediaSession(artist, title, artworkUrl) {
@@ -1786,10 +1747,12 @@
             let serverArt = "";
 
             try {
-              if (data && data.now_playing && data.now_playing.song) {
-                const song = data.now_playing.song;
-                songText = `${song.artist} - ${song.title}`;
-                serverArt = song.art || "";
+              if (data && data.now_playing) {
+                const np = data.now_playing;
+                if (np.song) {
+                  songText = `${np.song.artist} - ${np.song.title}`;
+                }
+                serverArt = np.art || (np.song ? np.song.art : "") || "";
               }
             } catch (e) {}
 
@@ -1836,7 +1799,7 @@
                 streamStatusText.textContent = parsedArtist;
               }
 
-              await fetchCoverAndDetails(parsedArtist, parsedTitle, serverArt);
+              fetchCoverAndDetails(parsedArtist, parsedTitle, serverArt);
             }
           } catch (err) {}
         }
