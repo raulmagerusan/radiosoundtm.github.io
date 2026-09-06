@@ -45,6 +45,7 @@
         --accent-green-glow: rgba(86, 203, 76, 0.15);
         --accent-green-glow-intense: rgba(86, 203, 76, 0.35);
         --accent-loading: #ffaa00;
+        --accent-red: #e63900;
         --text-main: #ffffff;
         --text-muted: #a0a6b2;
         --border-color: #272a33;
@@ -56,16 +57,21 @@
         margin: 0;
         padding: 0;
         -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
-      html {
-        scroll-behavior: smooth;
+      html,
+      body {
         background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: fixed;
       }
 
       body {
-        font-family: "Inter", sans-serif;
-        background-color: var(--bg-color);
         background-image:
           radial-gradient(
             circle at 50% 15%,
@@ -77,16 +83,15 @@
             rgba(13, 14, 17, 0.9) 0%,
             transparent 100%
           );
-        color: var(--text-main);
-        min-height: 100vh;
-        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: calc(12px + env(safe-area-inset-top)) 12px
-          calc(12px + env(safe-area-inset-bottom)) 12px;
+        padding: calc(10px + env(safe-area-inset-top)) 12px
+          calc(10px + env(safe-area-inset-bottom)) 12px;
         user-select: none;
         -webkit-user-select: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .app-wrapper {
@@ -95,7 +100,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
+        padding-bottom: 20px;
       }
 
       .lang-switcher {
@@ -122,6 +128,12 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
       }
 
+      .lang-btn.active {
+        background: rgba(86, 203, 76, 0.15);
+        color: var(--accent-green);
+        border-color: var(--accent-green);
+      }
+
       header,
       main {
         width: 100%;
@@ -131,7 +143,7 @@
       }
 
       header {
-        margin: 6px 0 12px 0;
+        margin: 4px 0 8px 0;
         width: 100%;
       }
 
@@ -173,10 +185,9 @@
           inset 0 2px 4px rgba(255, 255, 255, 0.4),
           inset 0 -2px 4px rgba(0, 0, 0, 0.3);
         transition:
-          transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-          background 0.25s ease,
-          box-shadow 0.25s ease;
-        touch-action: manipulation;
+          transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+          background 0.2s ease,
+          box-shadow 0.2s ease;
         will-change: transform, box-shadow;
       }
 
@@ -219,7 +230,7 @@
       }
 
       main {
-        gap: 12px;
+        gap: 10px;
         flex: 1;
       }
 
@@ -228,7 +239,7 @@
         background-color: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: 16px;
-        padding: 16px 14px;
+        padding: 14px 12px;
         text-align: center;
         position: relative;
         box-shadow:
@@ -256,7 +267,7 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         width: 100%;
       }
 
@@ -311,19 +322,25 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(86, 203, 76, 0.1);
-        color: var(--accent-green);
+        background: rgba(160, 166, 178, 0.1);
+        color: var(--text-muted);
         padding: 4px 12px;
         border-radius: 20px;
         font-size: 0.65rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
-        border: 1px solid rgba(86, 203, 76, 0.25);
+        border: 1px solid rgba(160, 166, 178, 0.25);
         transition:
           color 0.3s ease,
           border-color 0.3s ease,
           background 0.3s ease;
+      }
+
+      .status-badge.connected {
+        background: rgba(86, 203, 76, 0.1);
+        color: var(--accent-green);
+        border-color: rgba(86, 203, 76, 0.25);
       }
 
       .status-badge.buffering {
@@ -335,11 +352,15 @@
       .status-dot {
         width: 7px;
         height: 7px;
-        background-color: var(--accent-green);
+        background-color: var(--text-muted);
         border-radius: 50%;
+        box-shadow: 0 0 4px rgba(160, 166, 178, 0.5);
+      }
+
+      .status-badge.connected .status-dot {
+        background-color: var(--accent-green);
         box-shadow: 0 0 6px var(--accent-green);
         animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        will-change: transform, opacity, box-shadow;
       }
 
       .status-badge.buffering .status-dot {
@@ -409,11 +430,11 @@
         position: absolute;
         top: 6px;
         left: 8px;
-        font-size: 0.42rem;
+        font-size: 0.32rem;
         font-weight: 800;
         font-family: sans-serif;
         color: #d8dde6;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.3px;
         text-transform: uppercase;
         opacity: 0.9;
         pointer-events: none;
@@ -422,11 +443,11 @@
 
       .technics-branding span {
         color: var(--accent-green);
-        font-size: 0.38rem;
+        font-size: 0.26rem;
         display: block;
         font-weight: 700;
         margin-top: -1px;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.2px;
       }
 
       .technics-start-btn {
@@ -930,14 +951,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 16px;
-        margin-bottom: 8px;
+        margin-top: 14px;
+        margin-bottom: 6px;
       }
 
       footer {
         width: 100%;
         text-align: center;
-        padding: 12px 0;
+        padding: 10px 0;
         font-size: 0.75rem;
         color: var(--text-muted);
       }
@@ -945,49 +966,6 @@
       footer a {
         color: var(--accent-green);
         text-decoration: none;
-      }
-
-      @media (min-width: 900px) {
-        body {
-          justify-content: flex-start;
-          padding: 24px 40px;
-        }
-        .app-wrapper {
-          width: 992px;
-          max-width: 992px;
-          flex-direction: row;
-          align-items: flex-start;
-          justify-content: center;
-          gap: 32px;
-        }
-        header {
-          flex: 0 0 480px;
-          width: 480px;
-          margin: 28px 0 0 0;
-          position: sticky;
-          top: 24px;
-          align-self: flex-start;
-        }
-        .lang-switcher {
-          top: -28px;
-          right: 0;
-        }
-        .lang-btn {
-          background: var(--card-bg);
-          box-shadow: none;
-        }
-        .logo-container {
-          width: 100%;
-        }
-        .logo-container img {
-          width: 100%;
-          height: auto;
-          object-fit: contain;
-        }
-        main {
-          flex: 0 0 480px;
-          width: 480px;
-        }
       }
     </style>
   </head>
@@ -1110,7 +1088,7 @@
 
             <div class="status-badge" id="statusBadgeUI">
               <span class="status-dot"></span>
-              <span id="txtOnAir">Radio Sound TM</span>
+              <span id="txtOnAir">Off-Air</span>
             </div>
 
             <div class="vu-meter-vintage powered" id="vuCardR">
@@ -1311,7 +1289,7 @@
             id="radioAudio"
             crossorigin="anonymous"
             playsinline
-            preload="auto"
+            preload="none"
           ></audio>
         </div>
 
@@ -1475,17 +1453,6 @@
           </div>
         </div>
 
-        <div style="display: none">
-          <iframe
-            src="https://radio.radiosoundtm.online/public/radio_sound_tm/embed?theme=dark&autoplay=1&hide_volume=1&hide_progress=1&hide_streams=1&volume=100&layout=vertical"
-            width="100%"
-            height="170px"
-            style="border: 0"
-            frameborder="0"
-            allowtransparency="true"
-          ></iframe>
-        </div>
-
         <div class="partner-container">
           <a
             href="https://onlineradiobox.com/ro/magic/"
@@ -1518,7 +1485,8 @@
           pageTitle: "Radio Sound TM - Refining music!",
           metaDesc:
             "Radio Sound TM este frecvența ta de negăsit în altă parte. Descoperă muzică electronică underground de calitate superioară: Drum and Bass, Jungle, Breakbeat și House, transmise 24/7 direct din Timișoara. Conectează-te și simte ritmul!",
-          onAir: "Radio Sound TM",
+          onAirConnected: "On-Air",
+          onAirOff: "Off-Air",
           downloadTitle: "Descarcă Aplicația",
           downloadSub: "Ascultă Radio Sound TM direct de pe telefonul tău!",
           aboutHeader: "Refining music!",
@@ -1538,7 +1506,8 @@
           pageTitle: "Radio Sound TM - Refining music!",
           metaDesc:
             "Radio Sound TM is your go-to underground electronic music station. Discover high-quality Drum and Bass, Jungle, Breakbeat, and House 24/7 live from Timișoara.",
-          onAir: "Radio Sound TM",
+          onAirConnected: "On-Air",
+          onAirOff: "Off-Air",
           downloadTitle: "Download App",
           downloadSub: "Listen to Radio Sound TM directly from your phone!",
           aboutHeader: "Refining music!",
@@ -1554,68 +1523,98 @@
         },
       };
 
-      document.addEventListener("DOMContentLoaded", function () {
-        const isIOS =
-          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      let currentLang = "ro";
+      let isPlaying = false;
+      let isBuffering = false;
 
+      function updateOnAirLabelText() {
+        const t = translations[currentLang];
+        const txtOnAir = document.getElementById("txtOnAir");
+        const statusBadgeUI = document.getElementById("statusBadgeUI");
+        if (!txtOnAir || !statusBadgeUI) return;
+
+        if (isPlaying && !isBuffering) {
+          txtOnAir.textContent = t.onAirConnected;
+          statusBadgeUI.className = "status-badge connected";
+        } else if (isBuffering) {
+          txtOnAir.textContent = "Se conectează...";
+          statusBadgeUI.className = "status-badge buffering";
+        } else {
+          txtOnAir.textContent = t.onAirOff;
+          statusBadgeUI.className = "status-badge";
+        }
+      }
+
+      function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem("userLang", lang);
+        const t = translations[lang];
+        if (!t) return;
+
+        document.documentElement.setAttribute("lang", t.htmlLang);
+        const pageTitleEl = document.getElementById("pageTitle");
+        if (pageTitleEl) pageTitleEl.textContent = t.pageTitle;
+
+        const metaDescEl = document.getElementById("metaDesc");
+        if (metaDescEl) metaDescEl.setAttribute("content", t.metaDesc);
+
+        updateOnAirLabelText();
+
+        const txtDownTitle = document.getElementById("txtDownloadTitle");
+        if (txtDownTitle) txtDownTitle.textContent = t.downloadTitle;
+
+        const txtDownSub = document.getElementById("txtDownloadSubtitle");
+        if (txtDownSub) txtDownSub.textContent = t.downloadSub;
+
+        const txtAboutHead = document.getElementById("txtAboutHeader");
+        if (txtAboutHead) txtAboutHead.textContent = t.aboutHeader;
+
+        const txtAboutBody = document.getElementById("txtAboutBody");
+        if (txtAboutBody) txtAboutBody.innerHTML = t.aboutBody;
+
+        const txtSchedHead = document.getElementById("txtScheduleHeader");
+        if (txtSchedHead) txtSchedHead.textContent = t.scheduleHeader;
+
+        const txtHistHead = document.getElementById("txtHistoryHeader");
+        if (txtHistHead) txtHistHead.textContent = t.historyHeader;
+
+        const txtFootRights = document.getElementById("txtFooterRights");
+        if (txtFootRights) txtFootRights.innerHTML = t.footerRights;
+
+        const txtCookie = document.getElementById("txtCookieLink");
+        if (txtCookie) txtCookie.textContent = t.cookieLink;
+
+        const btnRo = document.getElementById("langRo");
+        const btnEn = document.getElementById("langEn");
+
+        if (btnRo && btnEn) {
+          if (lang === "ro") {
+            btnRo.classList.add("active");
+            btnEn.classList.remove("active");
+          } else {
+            btnEn.classList.add("active");
+            btnRo.classList.remove("active");
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
         function determineInitialLanguage() {
           const savedLang = localStorage.getItem("userLang");
           if (savedLang && (savedLang === "ro" || savedLang === "en"))
             return savedLang;
-          const browserLang =
-            navigator.language || navigator.userLanguage || "";
-          if (browserLang.toLowerCase().startsWith("ro")) return "ro";
-          try {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-            if (tz.includes("Bucharest") || tz.includes("Romania")) return "ro";
-          } catch (e) {}
-          return "en";
+          return "ro"; // Forțat default limba română
         }
 
-        let currentLang = determineInitialLanguage();
-
-        function setLanguage(lang) {
-          currentLang = lang;
-          localStorage.setItem("userLang", lang);
-          const t = translations[lang];
-
-          document.documentElement.setAttribute("lang", t.htmlLang);
-          document.getElementById("pageTitle").textContent = t.pageTitle;
-          document
-            .getElementById("metaDesc")
-            .setAttribute("content", t.metaDesc);
-          document.getElementById("txtOnAir").textContent = t.onAir;
-          document.getElementById("txtDownloadTitle").textContent =
-            t.downloadTitle;
-          document.getElementById("txtDownloadSubtitle").textContent =
-            t.downloadSub;
-          document.getElementById("txtAboutHeader").textContent = t.aboutHeader;
-          document.getElementById("txtAboutBody").innerHTML = t.aboutBody;
-          document.getElementById("txtScheduleHeader").textContent =
-            t.scheduleHeader;
-          document.getElementById("txtHistoryHeader").textContent =
-            t.historyHeader;
-          document.getElementById("txtFooterRights").innerHTML = t.footerRights;
-          document.getElementById("txtCookieLink").textContent = t.cookieLink;
-
-          const btnRo = document.getElementById("langRo");
-          const btnEn = document.getElementById("langEn");
-          const activeStyle =
-            "background: rgba(86, 203, 76, 0.15); color: #56cb4c; border-color: #56cb4c; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer;";
-          const inactiveStyle =
-            "background: rgba(22, 24, 29, 0.85); color: #a0a6b2; border-color: #272a33; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer;";
-
-          if (btnRo && btnEn) {
-            btnRo.style.cssText = lang === "ro" ? activeStyle : inactiveStyle;
-            btnEn.style.cssText = lang === "en" ? activeStyle : inactiveStyle;
-          }
-        }
+        currentLang = determineInitialLanguage();
 
         const btnRoEl = document.getElementById("langRo");
         const btnEnEl = document.getElementById("langEn");
+
         if (btnRoEl) btnRoEl.addEventListener("click", () => setLanguage("ro"));
         if (btnEnEl) btnEnEl.addEventListener("click", () => setLanguage("en"));
+
+        setLanguage(currentLang);
 
         document.querySelectorAll(".expand-header").forEach((header) => {
           header.addEventListener("click", function () {
@@ -1624,15 +1623,10 @@
           });
         });
 
-        setLanguage(currentLang);
-
         const baseStreamUrl =
           "https://radio.radiosoundtm.online/listen/radio_sound_tm/radio.mp3";
         const audio = document.getElementById("radioAudio");
         const playBtnLogo = document.getElementById("playBtnLogo");
-        const statusBadgeUI = document.getElementById("statusBadgeUI");
-        const trackArt = document.getElementById("trackArt");
-        const widgetCoverImg = document.getElementById("widgetCoverImg");
         const turntable = document.getElementById("turntable");
         const tonearmEl = document.getElementById("tonearm");
         const equalizerBars = document.querySelectorAll(".equalizer-bar");
@@ -1642,8 +1636,6 @@
         if (needleL) needleL.setAttribute("transform", "rotate(-42, 35, 37)");
         if (needleR) needleR.setAttribute("transform", "rotate(-42, 35, 37)");
 
-        let isPlaying = false;
-        let isBuffering = false;
         let audioCtx = null;
         let analyserL = null;
         let analyserR = null;
@@ -1791,27 +1783,29 @@
         }
         loopMetadata();
 
-        function initAudio() {
-          if (isIOS) return;
+        function initAudioContext() {
           if (!audioCtx) {
             try {
-              const AudioCtx = window.AudioContext || window.webkitAudioContext;
-              if (AudioCtx) audioCtx = new AudioCtx();
+              const AudioContextClass =
+                window.AudioContext || window.webkitAudioContext;
+              if (AudioContextClass) audioCtx = new AudioContextClass();
             } catch (e) {}
           }
-          if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+          if (audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
 
           if (audioCtx && !mediaSourceConnected && audio) {
             try {
-              audio.crossOrigin = "anonymous";
               const src = audioCtx.createMediaElementSource(audio);
-              const splitter = audioCtx.createChannelSplitter(2);
               analyserL = audioCtx.createAnalyser();
               analyserR = audioCtx.createAnalyser();
               analyserL.fftSize = 256;
               analyserR.fftSize = 256;
-              analyserL.smoothingTimeConstant = 0.7;
-              analyserR.smoothingTimeConstant = 0.7;
+              analyserL.smoothingTimeConstant = 0.4;
+              analyserR.smoothingTimeConstant = 0.4;
+
+              const splitter = audioCtx.createChannelSplitter(2);
               src.connect(splitter);
               try {
                 splitter.connect(analyserL, 0);
@@ -1833,8 +1827,10 @@
         }
 
         function mapRMS(rms) {
-          const dbLike = Math.log10(rms / 110 + 0.01) * 20;
-          return Math.max(-45, Math.min(32, dbLike * 1.5));
+          const normalized = Math.min(255, Math.max(0, rms));
+          const db = 20 * Math.log10(normalized / 255 + 0.001);
+          const angle = -42 + (db + 60) * (54 / 60);
+          return Math.max(-42, Math.min(15, angle));
         }
 
         function animationLoop() {
@@ -1867,24 +1863,13 @@
           let eqTargets = new Array(11).fill(0.15);
 
           if (!isBuffering) {
-            if (isIOS) {
-              const now = Date.now();
-              const pulse =
-                Math.abs(Math.sin(now / 150)) * 22 +
-                Math.abs(Math.cos(now / 220)) * 12;
-              targetAngleL = mapRMS(15 + pulse + Math.random() * 6);
-              targetAngleR = mapRMS(15 + pulse + Math.random() * 6);
-              for (let i = 0; i < 11; i++) {
-                const barPulse = Math.abs(Math.sin(now / (100 + i * 25))) * 0.5;
-                eqTargets[i] = Math.min(
-                  1,
-                  Math.max(
-                    0.15,
-                    0.2 + barPulse * (1 - i * 0.04) + Math.random() * 0.15,
-                  ),
-                );
-              }
-            } else if (analyserL && analyserR) {
+            let hasRealData = false;
+            if (
+              analyserL &&
+              analyserR &&
+              audioCtx &&
+              audioCtx.state === "running"
+            ) {
               const arrL = new Uint8Array(analyserL.frequencyBinCount);
               const arrR = new Uint8Array(analyserR.frequencyBinCount);
               analyserL.getByteFrequencyData(arrL);
@@ -1899,9 +1884,11 @@
               const rmsL = Math.sqrt(sumSqL / 59);
               const rmsR = Math.sqrt(sumSqR / 59);
 
-              if (rmsL > 2 || rmsR > 2) {
+              if (rmsL > 1.0 || rmsR > 1.0) {
+                hasRealData = true;
                 targetAngleL = mapRMS(rmsL);
                 targetAngleR = mapRMS(rmsR);
+
                 const getAvgLR = (s, e) =>
                   (getAverageBin(arrL, s, e) + getAverageBin(arrR, s, e)) / 2;
 
@@ -1920,25 +1907,43 @@
                 ];
                 bands.forEach((b, i) => {
                   if (i < 11) {
-                    const val = (b.raw / 255) * b.mult * 1.4;
+                    const val = (b.raw / 255) * b.mult * 1.5;
                     eqTargets[i] = Math.min(
                       1,
-                      Math.max(0.15, Math.pow(val, 1.25)),
+                      Math.max(0.15, Math.pow(val, 1.2)),
                     );
                   }
                 });
               }
             }
+
+            if (!hasRealData) {
+              const now = Date.now();
+              const beat =
+                Math.abs(Math.sin(now / 120)) * 24 +
+                Math.abs(Math.cos(now / 180)) * 12;
+              targetAngleL = mapRMS(15 + beat + Math.random() * 10);
+              targetAngleR = mapRMS(15 + beat + Math.random() * 10);
+              for (let i = 0; i < 11; i++) {
+                const dynamicBar =
+                  Math.abs(Math.sin(now / (80 + i * 18))) * 0.75;
+                eqTargets[i] = Math.min(
+                  1,
+                  Math.max(
+                    0.15,
+                    0.3 + dynamicBar * (1 - i * 0.03) + Math.random() * 0.15,
+                  ),
+                );
+              }
+            }
           }
 
-          const springK = 0.18;
-          const damping = 0.7;
+          const springK = 0.35;
+          const damping = 0.55;
           velL = (velL + (targetAngleL - currentAngleL) * springK) * damping;
           currentAngleL += velL;
           velR = (velR + (targetAngleR - currentAngleR) * springK) * damping;
           currentAngleR += velR;
-          currentAngleL = Math.max(-45, Math.min(32, currentAngleL));
-          currentAngleR = Math.max(-45, Math.min(32, currentAngleR));
 
           if (needleL)
             needleL.setAttribute(
@@ -1952,7 +1957,7 @@
             );
 
           equalizerBars.forEach((bar, i) => {
-            currentEq[i] += (eqTargets[i] - currentEq[i]) * 0.3;
+            currentEq[i] += (eqTargets[i] - currentEq[i]) * 0.35;
             bar.style.transform = `scaleY(${currentEq[i].toFixed(3)})`;
           });
 
@@ -1963,13 +1968,12 @@
           isBuffering = state;
           if (state) {
             if (playBtnLogo) playBtnLogo.classList.add("loading");
-            if (statusBadgeUI) statusBadgeUI.classList.add("buffering");
             if (turntable) turntable.classList.remove("playing");
           } else {
             if (playBtnLogo) playBtnLogo.classList.remove("loading");
-            if (statusBadgeUI) statusBadgeUI.classList.remove("buffering");
             if (turntable && isPlaying) turntable.classList.add("playing");
           }
+          updateOnAirLabelText();
         }
 
         function reconnectStream() {
@@ -1989,7 +1993,7 @@
               p.then(() => {
                 retryCount = 0;
                 setBufferingUI(false);
-              }).catch((e) => {
+              }).catch(() => {
                 retryCount++;
                 reconnectStream();
               });
@@ -2029,6 +2033,7 @@
             isPlaying = true;
             retryCount = 0;
             setBufferingUI(true);
+            updateOnAirLabelText();
 
             if (playBtnLogo) {
               playBtnLogo.classList.add("active-press");
@@ -2036,7 +2041,8 @@
                 '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
             }
 
-            audio.crossOrigin = "anonymous";
+            initAudioContext();
+
             audio.src = baseStreamUrl + "?nocache=" + Date.now();
             audio.load();
 
@@ -2044,18 +2050,18 @@
             if (playPromise !== undefined) {
               playPromise
                 .then(() => {
-                  initAudio();
+                  setBufferingUI(false);
                   if (!loopRunning) {
                     loopRunning = true;
                     animationLoop();
                   }
                 })
                 .catch((e) => {
-                  console.warn("Play blocked:", e);
+                  console.warn("Play blocked or failed:", e);
                   stopPlaybackUI();
                 });
             } else {
-              initAudio();
+              setBufferingUI(false);
               if (!loopRunning) {
                 loopRunning = true;
                 animationLoop();
@@ -2069,10 +2075,11 @@
         function stopPlaybackUI() {
           if (audio) {
             audio.pause();
-            audio.removeAttribute("src");
+            audio.src = "";
           }
           isPlaying = false;
           setBufferingUI(false);
+          updateOnAirLabelText();
           clearTimeout(reconnectTimeout);
           retryCount = 0;
 
