@@ -1851,11 +1851,7 @@
             return;
           }
 
-          if (document.hidden) {
-            animationId = setTimeout(animationLoop, 300);
-            return;
-          }
-
+          // Eliminat blocarea completă de vizibilitate pentru a menține bucla activă în fundal
           if (!isBuffering) {
             const elapsedSec = Math.floor((Date.now() - trackStartTime) / 1000);
             const TONEARM_DURATION = 420;
@@ -2005,13 +2001,6 @@
 
         window.addEventListener("online", () => {
           if (isPlaying && audio.paused) {
-            retryCount = 0;
-            reconnectStream();
-          }
-        });
-
-        document.addEventListener("visibilitychange", () => {
-          if (!document.hidden && isPlaying && audio.paused) {
             retryCount = 0;
             reconnectStream();
           }
