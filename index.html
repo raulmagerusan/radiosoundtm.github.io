@@ -1791,7 +1791,7 @@
         loopMetadata();
 
         function initAudioContext() {
-          if (isIOS) return; // iOS nu suportă Web Audio API pe HLS nativ
+          if (isIOS) return;
 
           if (!audioCtx) {
             try {
@@ -2058,9 +2058,8 @@
 
             initAudioContext();
 
-            let finalUrl = isIOS
-              ? streamHlsUrl
-              : streamMp3Url + "?nocache=" + Date.now();
+            // Corectat pentru iOS/Safari: Folosim streamMp3Url și pe iOS dacă fluxul HLS nu pornește corect
+            let finalUrl = streamMp3Url + "?nocache=" + Date.now();
             audio.src = finalUrl;
             audio.load();
 
