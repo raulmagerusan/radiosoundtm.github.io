@@ -1603,7 +1603,7 @@
           const savedLang = localStorage.getItem("userLang");
           if (savedLang && (savedLang === "ro" || savedLang === "en"))
             return savedLang;
-          return "ro"; // Forțat default limba română
+          return "ro";
         }
 
         currentLang = determineInitialLanguage();
@@ -1623,8 +1623,15 @@
           });
         });
 
-        const baseStreamUrl =
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+        const streamMp3Url =
           "https://radio.radiosoundtm.online/listen/radio_sound_tm/radio.mp3";
+        const streamHlsUrl =
+          "https://radio.radiosoundtm.online/hls/radio_sound_tm/live.m3u8";
+
         const audio = document.getElementById("radioAudio");
         const playBtnLogo = document.getElementById("playBtnLogo");
         const turntable = document.getElementById("turntable");
@@ -1986,7 +1993,10 @@
 
           reconnectTimeout = setTimeout(() => {
             if (!isPlaying) return;
-            audio.src = baseStreamUrl + "?nocache=" + Date.now();
+            let finalUrl = isIOS
+              ? streamHlsUrl
+              : streamMp3Url + "?nocache=" + Date.now();
+            audio.src = finalUrl;
             audio.load();
             const p = audio.play();
             if (p !== undefined) {
@@ -2043,7 +2053,10 @@
 
             initAudioContext();
 
-            audio.src = baseStreamUrl + "?nocache=" + Date.now();
+            let finalUrl = isIOS
+              ? streamHlsUrl
+              : streamMp3Url + "?nocache=" + Date.now();
+            audio.src = finalUrl;
             audio.load();
 
             const playPromise = audio.play();
