@@ -187,10 +187,9 @@
           inset 0 2px 4px rgba(255, 255, 255, 0.4),
           inset 0 -2px 4px rgba(0, 0, 0, 0.3);
         transition:
-          transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
           background 0.2s ease,
           box-shadow 0.2s ease;
-        will-change: transform, box-shadow;
+        will-change: box-shadow;
       }
 
       .logo-play svg {
@@ -207,23 +206,10 @@
           0 4px 12px rgba(0, 0, 0, 0.5),
           inset 0 2px 4px rgba(255, 255, 255, 0.4),
           inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-        animation: pulseLoading 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        pointer-events: none;
-      }
-
-      @keyframes pulseLoading {
-        0%,
-        100% {
-          transform: translate(-50%, -50%) scale(1);
-        }
-        50% {
-          transform: translate(-50%, -50%) scale(0.92);
-        }
       }
 
       .logo-play:active:not(.loading),
       .logo-play.active-press:not(.loading) {
-        transform: translate(-50%, -50%) scale(0.92);
         background: linear-gradient(145deg, #3fa137, #4cb043);
         box-shadow:
           0 2px 6px var(--accent-green-glow-intense),
@@ -624,6 +610,7 @@
         transform-origin: 30px 10px;
         transform: rotate(-32deg);
         will-change: transform;
+        transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
       }
 
       .tonearm-base {
@@ -1248,11 +1235,7 @@
         <div class="about-card expand-card" id="aboutCard">
           <div class="expand-header" id="aboutHeaderToggle">
             <h2 id="txtAboutHeader">Refining music!</h2>
-            <svg
-              class="expand-arrow bounce"
-              id="aboutArrow"
-              viewBox="0 0 24 24"
-            >
+            <svg class="expand-arrow" id="aboutArrow" viewBox="0 0 24 24">
               <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
             </svg>
           </div>
@@ -1295,11 +1278,7 @@
         <div class="about-card expand-card" id="scheduleCard">
           <div class="expand-header" id="scheduleHeaderToggle">
             <h2 id="txtScheduleHeader">Program</h2>
-            <svg
-              class="expand-arrow bounce"
-              id="scheduleArrow"
-              viewBox="0 0 24 24"
-            >
+            <svg class="expand-arrow" id="scheduleArrow" viewBox="0 0 24 24">
               <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
             </svg>
           </div>
@@ -1327,11 +1306,7 @@
         <div class="about-card expand-card" id="historyCard">
           <div class="expand-header" id="historyHeaderToggle">
             <h2 id="txtHistoryHeader">Istoric Melodii</h2>
-            <svg
-              class="expand-arrow bounce"
-              id="historyArrow"
-              viewBox="0 0 24 24"
-            >
+            <svg class="expand-arrow" id="historyArrow" viewBox="0 0 24 24">
               <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
             </svg>
           </div>
