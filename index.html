@@ -1791,6 +1791,8 @@
         loopMetadata();
 
         function initAudioContext() {
+          if (isIOS) return; // iOS nu suportă Web Audio API pe HLS nativ
+
           if (!audioCtx) {
             try {
               const AudioContextClass =
@@ -1871,7 +1873,9 @@
 
           if (!isBuffering) {
             let hasRealData = false;
+
             if (
+              !isIOS &&
               analyserL &&
               analyserR &&
               audioCtx &&
@@ -1924,21 +1928,22 @@
               }
             }
 
-            if (!hasRealData) {
+            if (isIOS || !hasRealData) {
               const now = Date.now();
               const beat =
-                Math.abs(Math.sin(now / 120)) * 24 +
-                Math.abs(Math.cos(now / 180)) * 12;
-              targetAngleL = mapRMS(15 + beat + Math.random() * 10);
-              targetAngleR = mapRMS(15 + beat + Math.random() * 10);
+                Math.abs(Math.sin(now / 110)) * 26 +
+                Math.abs(Math.cos(now / 170)) * 14 +
+                Math.random() * 8;
+              targetAngleL = mapRMS(12 + beat);
+              targetAngleR = mapRMS(10 + beat * 0.95);
               for (let i = 0; i < 11; i++) {
                 const dynamicBar =
-                  Math.abs(Math.sin(now / (80 + i * 18))) * 0.75;
+                  Math.abs(Math.sin(now / (70 + i * 15))) * 0.8;
                 eqTargets[i] = Math.min(
                   1,
                   Math.max(
                     0.15,
-                    0.3 + dynamicBar * (1 - i * 0.03) + Math.random() * 0.15,
+                    0.25 + dynamicBar * (1 - i * 0.03) + Math.random() * 0.12,
                   ),
                 );
               }
