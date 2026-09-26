@@ -137,6 +137,11 @@ transition: all 0.15s ease;
 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
+.lang-btn:active,
+.deck-switch-btn:active {
+transform: scale(0.95);
+}
+
 .lang-btn.active {
 background: rgba(86, 203, 76, 0.15);
 color: var(--accent-green);
@@ -195,6 +200,7 @@ gap: 10px;
 .logo-container {
 position: relative;
 width: 100%;
+max-width: 100%;
 display: flex;
 justify-content: center;
 align-items: center;
@@ -275,7 +281,8 @@ gap: 10px;
 flex: 1;
 }
 
-.player-card {
+.player-card,
+.about-card {
 width: 100%;
 background-color: var(--card-bg);
 border: 1px solid var(--border-color);
@@ -286,6 +293,7 @@ position: relative;
 box-shadow:
 0 8px 24px rgba(0, 0, 0, 0.5),
 0 0 10px var(--accent-green-glow);
+contain: layout style paint;
 }
 
 .player-card::before {
@@ -308,7 +316,7 @@ display: flex;
 align-items: center;
 justify-content: center;
 gap: 10px;
-margin-bottom: 12px;
+margin-bottom: 10px;
 width: 100%;
 }
 
@@ -416,19 +424,78 @@ transform: scale(0.85);
 }
 }
 
+.deck-switcher-bar {
+display: flex;
+justify-content: center;
+gap: 6px;
+margin-bottom: 10px;
+width: 100%;
+}
+
+.deck-switch-btn {
+background: rgba(22, 24, 29, 0.9);
+border: 1px solid var(--border-color);
+color: var(--text-muted);
+padding: 4px 12px;
+border-radius: 6px;
+font-size: 0.65rem;
+font-weight: 700;
+cursor: pointer;
+text-transform: uppercase;
+transition: all 0.2s ease;
+}
+
+.deck-switch-btn.active {
+background: rgba(86, 203, 76, 0.15);
+color: var(--accent-green);
+border-color: var(--accent-green);
+box-shadow: 0 0 8px var(--accent-green-glow);
+}
+
 .track-container {
 display: flex;
 flex-direction: row;
 align-items: center;
-justify-content: center;
+justify-content: flex-start;
 gap: 12px;
+min-height: 150px;
+width: 100%;
 }
 
-.turntable-container {
+@media (max-width: 380px) {
+.track-container {
+flex-direction: column;
+align-items: center;
+}
+.track-info {
+width: 100%;
+align-items: center !important;
+text-align: center !important;
+}
+.citrus-widget-box > div {
+justify-content: center;
+}
+}
+
+.deck-slot {
 position: relative;
 width: 150px;
-height: 150px;
 min-width: 150px;
+height: 150px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+overflow: visible;
+}
+
+/* Pick-up / Turntable Styles */
+.turntable-container {
+position: absolute;
+left: 0;
+top: 0;
+width: 150px;
+height: 150px;
 background: radial-gradient(
 circle at 50% 30%,
 #222731 0%,
@@ -443,6 +510,11 @@ inset 0 -2px 6px rgba(0, 0, 0, 0.8),
 0 0 16px var(--accent-green-glow),
 0 8px 18px rgba(0, 0, 0, 0.6);
 overflow: hidden;
+display: none;
+}
+
+.turntable-container.active {
+display: block !important;
 }
 
 .technics-branding {
@@ -716,20 +788,40 @@ animation: spinVinyl 4.5s linear infinite;
 }
 
 @keyframes spinVinyl {
-from {
-transform: rotate(0deg);
-}
-to {
-transform: rotate(360deg);
-}
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
 }
 @-webkit-keyframes spinVinyl {
-from {
--webkit-transform: rotate(0deg);
+from { -webkit-transform: rotate(0deg); }
+to { -webkit-transform: rotate(360deg); }
 }
-to {
--webkit-transform: rotate(360deg);
+
+/* Magnetofon Container Principal */
+.reel-deck-container {
+position: absolute;
+left: 0;
+top: 0;
+width: 150px;
+height: 150px;
+background: transparent;
+border: none;
+box-shadow: none;
+overflow: visible;
+display: none;
 }
+
+.reel-deck-container.active {
+display: block !important;
+}
+
+.reel-canvas {
+position: absolute;
+top: 0;
+left: 0;
+width: 150px;
+height: 150px;
+display: block;
+pointer-events: none;
 }
 
 .track-info {
@@ -776,19 +868,6 @@ border: 1px solid #1e3822;
 width: 100%;
 height: 100%;
 display: block;
-}
-
-.about-card {
-width: 100%;
-background-color: var(--card-bg);
-border: 1px solid var(--border-color);
-border-radius: 16px;
-padding: 12px;
-text-align: center;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 6px;
 }
 
 .about-card h2 {
@@ -898,6 +977,12 @@ overflow: hidden;
 min-height: 0;
 }
 
+.expand-inner iframe {
+width: 100% !important;
+max-width: 100% !important;
+display: block;
+}
+
 .partner-container {
 width: 100%;
 display: flex;
@@ -947,7 +1032,6 @@ aria-label="Play/Pause Logo"
 
 <main>
 <div class="desktop-layout-container">
-<!-- Coloana stanga pe Desktop: Logo (doar pe desktop) -->
 <div class="left-column-desktop">
 <div class="logo-container logo-desktop-only">
 <div class="lang-switcher">
@@ -969,7 +1053,6 @@ aria-label="Play/Pause Logo"
 </div>
 </div>
 
-<!-- Coloana dreapta pe Desktop: Player + Toate cardurile dedesubt -->
 <div class="right-column-desktop">
 <div class="player-card">
 <div class="status-vu-container">
@@ -1159,8 +1242,15 @@ stroke-width="0.8"
 </div>
 </div>
 
+<div class="deck-switcher-bar">
+<button id="btnTurntableDeck" class="deck-switch-btn active">Pick-up</button>
+<button id="btnReelDeck" class="deck-switch-btn">Magnetofon</button>
+</div>
+
 <div class="track-container">
-<div class="turntable-container" id="turntable">
+<div class="deck-slot">
+<!-- Pick-up Clasic -->
+<div class="turntable-container active" id="turntable">
 <div class="technics-branding">
 Technics<span>SL-1200MK2</span>
 </div>
@@ -1194,6 +1284,12 @@ class="vinyl-label"
 <div class="tonearm-base"></div>
 <div class="tonearm-stick"></div>
 <div class="tonearm-head"></div>
+</div>
+</div>
+
+<!-- Magnetofon Container -->
+<div class="reel-deck-container" id="reelDeck">
+<canvas id="reelCanvas" class="reel-canvas" width="300" height="300"></canvas>
 </div>
 </div>
 
@@ -1253,7 +1349,6 @@ Live 24/7
 </div>
 </div>
 
-<!-- Optimizat extrem pentru conexiune mobil & auto -->
 <audio
 id="radioAudio"
 crossorigin="anonymous"
@@ -1265,7 +1360,7 @@ x-webkit-airplay="allow"
 ></audio>
 </div>
 
-<!-- TOATE CARDURILE MUTATE DEDESUBTUL PLAYERULUI -->
+<!-- Carduri Extensibile -->
 <div class="about-card expand-card" id="downloadCard">
 <div class="expand-header" id="downloadHeaderToggle">
 <h2 id="txtDownloadTitle">Aplicații Mobile & Auto</h2>
@@ -1280,7 +1375,6 @@ Ascultă Radio Sound TM de pe telefon și în mașină prin aplicațiile partene
 </p>
 
 <div style="width: 100%; margin-top: 4px; display: flex; flex-direction: column; gap: 12px;">
-<!-- Secțiune Online Radio Box -->
 <div style="background: rgba(160, 166, 178, 0.05); border: 1px solid rgba(160, 166, 178, 0.15); border-radius: 12px; padding: 10px;">
 <div class="download-buttons" style="margin-top: 0; align-items: center;">
 <a href="https://apps.apple.com/ro/app/online-radio-box-fm-radio-app/id1101437391?l=ro" target="_blank" rel="noopener noreferrer" class="download-btn" aria-label="Download for iOS">
@@ -1288,9 +1382,9 @@ Ascultă Radio Sound TM de pe telefon și în mașină prin aplicațiile partene
 iOS
 </a>
 <div style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 4px; text-align: center; min-width: 0;">
-<img 
-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU1IiBmaWxsPSIjMDNBOUY0Ii8+PHBhdGggZD0iTTUwIDExMCBBMjAgMjAgMCAwIDEgNzAgOTAgTDE4NiA5MCBBMjAgMjAgMCAwIDEgMjA2IDExMCBMMjA2IDE4NiBBMjAgMjAgMCAwIDEgMTg2IDIwNiBMNzAgMjA2IEEyMCAyMCAwIDAgMSA1MCAxODYgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjE0Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTQ4IiByPSIyMiIgZmlsbD0iI0ZGRkZGRiIvPjxsaW5lIHgxPSIxNDUiIHkxPSIxMzAiIHgyPSIxODAiIHkyPSIxMzAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGxpbmUgeDE9IjE0NSIgeTE9IjE2NiIgeDI9IjE4MCIgeTI9IjE2NiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjE0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iNzUiIHkxPSI5MCIgeDI9IjEwNSIgeTI9IjQwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMTQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==" 
-alt="Online Radio Box" 
+<img
+src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU1IiBmaWxsPSIjMDNBOUY0Ii8+PHBhdGggZD0iTTUwIDExMCBBMjAgMjAgMCAwIDEgNzAgOTAgTDE4NiA5MCBBMjAgMjAgMCAwIDEgMjA2IDExMCBMMjA2IDE4NiBBMjAgMjAgMCAwIDEgMTg2IDIwNiBMNzAgMjA2IEEyMCAyMCAwIDAgMSA1MCAxODYgWiIgZmlldD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjE0Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTQ4IiByPSIyMiIgZmlsbD0iI0ZGRkZGRiIvPjxsaW5lIHgxPSIxNDUiIHkxPSIxMzAiIHgyPSIxODAiIHkyPSIxMzAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGxpbmVgeDE9IjE0NSIgeTE9IjE2NiIgeDI9IjE4MCIgeTI9IjE2NiIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjE0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iNzUiIHkxPSI5MCIgeDI9IjEwNSIgeTI9IjQwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMTQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="
+alt="Online Radio Box"
 style="width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;"
 />
 <strong style="font-size: 0.72rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Online Radio Box</strong>
@@ -1302,7 +1396,6 @@ Android
 </div>
 </div>
 
-<!-- Secțiune myTuner Radio -->
 <div style="background: rgba(160, 166, 178, 0.05); border: 1px solid rgba(160, 166, 178, 0.15); border-radius: 12px; padding: 10px;">
 <div class="download-buttons" style="margin-top: 0; align-items: center;">
 <a href="https://apps.apple.com/ro/app/mytuner-radio-player-live-fm/id520502858" target="_blank" rel="noopener noreferrer" class="download-btn" aria-label="Download for iOS">
@@ -1310,9 +1403,9 @@ Android
 iOS
 </a>
 <div style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 4px; text-align: center; min-width: 0;">
-<img 
-src="https://static2.mytuner.mobi/static/widgets/mytuner-radio.png" 
-alt="myTuner Radio" 
+<img
+src="https://static2.mytuner.mobi/static/widgets/mytuner-radio.png"
+alt="myTuner Radio"
 style="width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;"
 />
 <strong style="font-size: 0.72rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">myTuner Radio</strong>
@@ -1427,7 +1520,6 @@ scrolling="no"
 </div>
 </div>
 
-<!-- BUTONUL DE FACEBOOK -->
 <a
 href="https://www.facebook.com/profile.php?id=61585994210872"
 target="_blank"
@@ -1459,23 +1551,23 @@ alt="Radio online România"
 style="width: 88px; height: 31px"
 />
 </a>
-<a 
-id="w6RrPcOnw6U8PDjDujDDrWFMw6V1T8OZeGTDpFkx" 
-class="mytuner-widget" 
-title="Listen on myTuner radio!" 
-href="https://mytuner-radio.com/?utm_source=widget&amp;utm_medium=button&amp;utm_campaign=64x64" 
-rel="noopener" 
-target="_blank" 
+<a
+id="w6RrPcOnw6U8PDjDujDDrWFMw6V1T8OZeGTDpFkx"
+class="mytuner-widget"
+title="Listen on myTuner radio!"
+href="https://mytuner-radio.com/?utm_source=widget&amp;utm_medium=button&amp;utm_campaign=64x64"
+rel="noopener"
+target="_blank"
 style="background: rgb(249, 240, 240); width: 64px; height: 64px; display: block; padding: 5px; margin: 0; box-sizing: border-box; cursor: pointer; border: 1px solid rgb(129, 127, 128); border-radius: 6px;"
 >
-<img 
-src="https://static2.mytuner.mobi/static/widgets/mytuner-radio.png" 
-alt="Listen on myTuner radio!" 
+<img
+src="https://static2.mytuner.mobi/static/widgets/mytuner-radio.png"
+alt="Listen on myTuner radio!"
 style="width: 37.125px; margin: 0px auto; display: block;"
 >
-<img 
-src="https://static2.mytuner.mobi/static/widgets/mytuner-logo-90.png" 
-alt="Listen of myTuner Radio!" 
+<img
+src="https://static2.mytuner.mobi/static/widgets/mytuner-logo-90.png"
+alt="Listen of myTuner Radio!"
 style="width: 54px; margin: 1.1402px auto; display: block;"
 >
 </a>
@@ -1502,6 +1594,8 @@ metaDesc:
 onAirConnected: "On-Air",
 onAirOff: "Off-Air",
 connectingText: "Se conectează...",
+btnTurntable: "Pick-up",
+btnReel: "Magnetofon",
 downloadTitle: "Aplicații Mobile & Auto",
 downloadSub: "Ascultă Radio Sound TM de pe telefon și în mașină prin aplicațiile partenere!",
 aboutHeader: "Refining music!",
@@ -1524,6 +1618,8 @@ metaDesc:
 onAirConnected: "On-Air",
 onAirOff: "Off-Air",
 connectingText: "Connecting...",
+btnTurntable: "Turntable",
+btnReel: "Reel-to-Reel",
 downloadTitle: "Mobile & Car Apps",
 downloadSub: "Listen to Radio Sound TM on your phone and in your car via our partner apps!",
 aboutHeader: "Refining music!",
@@ -1543,7 +1639,6 @@ let currentLang = "ro";
 let isPlaying = false;
 let isBuffering = false;
 
-// Variabile de protecție Mobile/Auto
 let isReconnecting = false;
 let intentionalPause = false;
 let watchdogInterval = null;
@@ -1581,6 +1676,11 @@ const metaDescEl = document.getElementById("metaDesc");
 if (metaDescEl) metaDescEl.setAttribute("content", t.metaDesc);
 
 updateOnAirLabelText();
+
+const btnT = document.getElementById("btnTurntableDeck");
+const btnR = document.getElementById("btnReelDeck");
+if (btnT) btnT.textContent = t.btnTurntable;
+if (btnR) btnR.textContent = t.btnReel;
 
 const txtDownTitle = document.getElementById("txtDownloadTitle");
 if (txtDownTitle) txtDownTitle.textContent = t.downloadTitle;
@@ -1642,6 +1742,28 @@ if (btnEnMob) btnEnMob.addEventListener("click", () => setLanguage("en"));
 
 setLanguage(currentLang);
 
+const btnTurntableDeck = document.getElementById("btnTurntableDeck");
+const btnReelDeck = document.getElementById("btnReelDeck");
+const turntableEl = document.getElementById("turntable");
+const reelDeckEl = document.getElementById("reelDeck");
+
+if (btnTurntableDeck && btnReelDeck && turntableEl && reelDeckEl) {
+btnTurntableDeck.addEventListener("click", () => {
+btnTurntableDeck.classList.add("active");
+btnReelDeck.classList.remove("active");
+turntableEl.classList.add("active");
+reelDeckEl.classList.remove("active");
+});
+
+btnReelDeck.addEventListener("click", () => {
+btnReelDeck.classList.add("active");
+btnTurntableDeck.classList.remove("active");
+turntableEl.classList.remove("active");
+reelDeckEl.classList.add("active");
+drawReelDeck();
+});
+}
+
 document.querySelectorAll(".expand-header").forEach((header) => {
 header.addEventListener("click", function () {
 const card = this.closest(".expand-card");
@@ -1672,9 +1794,229 @@ const rect = canvas.getBoundingClientRect();
 canvas.width = rect.width * window.devicePixelRatio;
 canvas.height = rect.height * window.devicePixelRatio;
 if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+if (!isPlaying && ctx) {
+ctx.fillStyle = "rgba(7, 18, 10, 1)";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
+
+const reelCanvas = document.getElementById("reelCanvas");
+const reelCtx = reelCanvas ? reelCanvas.getContext("2d") : null;
+
+let reelAngle = 0;
+
+function drawReelDeck() {
+if (!reelCtx || !reelCanvas) return;
+const canvasW = 300;
+const canvasH = 300;
+
+reelCtx.clearRect(0, 0, canvasW, canvasH);
+
+const deckX = 28;
+const deckY = 42;
+const deckW = 244;
+const deckH = 252;
+
+let chassisGrad = reelCtx.createLinearGradient(deckX, deckY, deckX + deckW, deckY + deckH);
+chassisGrad.addColorStop(0, '#f1f5f9');
+chassisGrad.addColorStop(0.5, '#cbd5e1');
+chassisGrad.addColorStop(1, '#64748b');
+
+reelCtx.fillStyle = chassisGrad;
+reelCtx.beginPath();
+reelCtx.roundRect(deckX, deckY, deckW, deckH, 16);
+reelCtx.fill();
+reelCtx.lineWidth = 2.4;
+reelCtx.strokeStyle = '#334155';
+reelCtx.stroke();
+
+function drawScrew(sx, sy) {
+reelCtx.fillStyle = '#0f172a';
+reelCtx.beginPath();
+reelCtx.arc(sx, sy, 4, 0, Math.PI * 2);
+reelCtx.fill();
+reelCtx.strokeStyle = '#94a3b8';
+reelCtx.lineWidth = 1.2;
+reelCtx.stroke();
+reelCtx.strokeStyle = '#cbd5e1';
+reelCtx.beginPath();
+reelCtx.moveTo(sx - 2, sy - 2);
+reelCtx.lineTo(sx + 2, sy + 2);
+reelCtx.stroke();
+}
+drawScrew(deckX + 12, deckY + 16);
+drawScrew(deckX + deckW - 12, deckY + 16);
+drawScrew(deckX + 12, deckY + deckH - 16);
+drawScrew(deckX + deckW - 12, deckY + deckH - 16);
+
+const leftX = 67;
+const leftY = 70;
+const rightX = 233;
+const rightY = 70;
+const radius = 71;
+
+const headOffsetY = 104;
+const headY = deckY + headOffsetY;
+const headH = 20;
+
+reelCtx.beginPath();
+reelCtx.moveTo(leftX + 4, leftY + 32);
+reelCtx.lineTo(canvasW / 2 - 12, headY + headH);
+reelCtx.lineTo(canvasW / 2 + 12, headY + headH);
+reelCtx.lineTo(rightX - 4, rightY + 32);
+reelCtx.lineWidth = 2.8;
+reelCtx.strokeStyle = "#000000";
+reelCtx.stroke();
+
+function drawRevoxReel(x, y, angle) {
+reelCtx.save();
+reelCtx.translate(x, y);
+reelCtx.rotate(angle);
+
+reelCtx.beginPath();
+reelCtx.arc(0, 0, radius, 0, Math.PI * 2);
+reelCtx.fillStyle = '#111827';
+reelCtx.fill();
+reelCtx.lineWidth = 1.6;
+reelCtx.strokeStyle = '#030712';
+reelCtx.stroke();
+
+let flangeRadius = radius - 3;
+let grad = reelCtx.createRadialGradient(0, 0, flangeRadius - 20, 0, 0, flangeRadius);
+grad.addColorStop(0, '#ffffff');
+grad.addColorStop(0.25, '#e2e8f0');
+grad.addColorStop(0.7, '#94a3b8');
+grad.addColorStop(1, '#475569');
+
+reelCtx.beginPath();
+reelCtx.arc(0, 0, flangeRadius, 0, Math.PI * 2);
+reelCtx.fillStyle = grad;
+reelCtx.fill();
+reelCtx.lineWidth = 2;
+reelCtx.strokeStyle = '#334155';
+reelCtx.stroke();
+
+for (let i = 0; i < 3; i++) {
+reelCtx.save();
+reelCtx.rotate((Math.PI * 2 * i) / 3);
+reelCtx.beginPath();
+reelCtx.moveTo(0, -15);
+reelCtx.bezierCurveTo(12, -15, 15, -42, 0, -50);
+reelCtx.bezierCurveTo(-15, -42, -12, -15, 0, -15);
+
+reelCtx.globalCompositeOperation = 'destination-out';
+reelCtx.fillStyle = '#000000';
+reelCtx.fill();
+reelCtx.globalCompositeOperation = 'source-over';
+
+reelCtx.lineWidth = 1.2;
+reelCtx.strokeStyle = '#64748b';
+reelCtx.stroke();
+reelCtx.restore();
+}
+
+let hubGrad = reelCtx.createRadialGradient(0, 0, 4, 0, 0, 15);
+hubGrad.addColorStop(0, '#f8fafc');
+hubGrad.addColorStop(1, '#475569');
+
+reelCtx.beginPath();
+reelCtx.arc(0, 0, 15, 0, Math.PI * 2);
+reelCtx.fillStyle = hubGrad;
+reelCtx.fill();
+reelCtx.lineWidth = 1.6;
+reelCtx.strokeStyle = '#1e293b';
+reelCtx.stroke();
+
+reelCtx.beginPath();
+reelCtx.arc(0, 0, 6.4, 0, Math.PI * 2);
+reelCtx.fillStyle = '#1e293b';
+reelCtx.fill();
+reelCtx.lineWidth = 1.2;
+reelCtx.strokeStyle = '#64748b';
+reelCtx.stroke();
+
+reelCtx.beginPath();
+reelCtx.arc(0, 0, 2.2, 0, Math.PI * 2);
+reelCtx.fillStyle = '#030712';
+reelCtx.fill();
+
+reelCtx.restore();
+}
+
+drawRevoxReel(leftX, leftY, reelAngle);
+drawRevoxReel(rightX, rightY, reelAngle);
+
+reelCtx.fillStyle = "#334155";
+reelCtx.fillRect(canvasW / 2 - 12, headY, 24, headH);
+reelCtx.lineWidth = 1.6;
+reelCtx.strokeStyle = "#1e293b";
+reelCtx.strokeRect(canvasW / 2 - 12, headY, 24, headH);
+
+reelCtx.fillStyle = "#1e293b";
+reelCtx.fillRect(canvasW / 2 - 6, headY + 4, 3.6, 13);
+reelCtx.fillRect(canvasW / 2 + 2.4, headY + 4, 3.6, 13);
+
+reelCtx.fillStyle = "#1e293b";
+reelCtx.font = "800 8.4px Inter, sans-serif";
+reelCtx.textAlign = "center";
+reelCtx.textBaseline = "middle";
+reelCtx.fillText("REVOX", canvasW / 2, headY + 30);
+
+reelCtx.font = "700 6px Inter, sans-serif";
+reelCtx.fillStyle = "#475569";
+reelCtx.fillText("B77", canvasW / 2, headY + 40);
+
+const panelY = deckY + 166;
+reelCtx.fillStyle = "#cbd5e1";
+reelCtx.fillRect(deckX + 8, panelY, deckW - 16, 60);
+reelCtx.lineWidth = 1.8;
+reelCtx.strokeStyle = "#475569";
+reelCtx.strokeRect(deckX + 8, panelY, deckW - 16, 60);
+
+reelCtx.fillStyle = "#1e293b";
+reelCtx.beginPath();
+reelCtx.arc(deckX + 22, panelY + 30, 7, 0, Math.PI * 2);
+reelCtx.arc(deckX + deckW - 22, panelY + 30, 7, 0, Math.PI * 2);
+reelCtx.fill();
+reelCtx.lineWidth = 1;
+reelCtx.strokeStyle = "#475569";
+reelCtx.stroke();
+
+const btnW = 26;
+const btnH = 17;
+const startBtnX = canvasW / 2 - 84;
+const btnY = panelY + 21;
+
+const buttonLabels = ["REC", "PLAY", "STOP", "FF", "REW", "PAUSE"];
+for (let b = 0; b < 6; b++) {
+let bx = startBtnX + b * 28.4;
+let isActiveBtn = (b === 1 && isPlaying) || (b === 2 && !isPlaying);
+
+reelCtx.fillStyle = isActiveBtn ? "#56cb4c" : "#1e293b";
+reelCtx.fillRect(bx, btnY, btnW, btnH);
+reelCtx.lineWidth = 1;
+reelCtx.strokeStyle = "#0f172a";
+reelCtx.strokeRect(bx, btnY, btnW, btnH);
+
+reelCtx.fillStyle = isActiveBtn ? "#000000" : "#ffffff";
+reelCtx.font = "700 5.2px Inter, sans-serif";
+reelCtx.textAlign = "center";
+reelCtx.textBaseline = "middle";
+reelCtx.fillText(buttonLabels[b], bx + btnW / 2, btnY + btnH / 2);
+}
+
+for (let s = 0; s < 3; s++) {
+let sx = canvasW / 2 - 32 + s * 32;
+let sy = panelY + 8;
+reelCtx.fillStyle = "#0f172a";
+reelCtx.fillRect(sx - 4, sy - 2.4, 8, 4.8);
+reelCtx.fillStyle = "#ffffff";
+reelCtx.fillRect(sx - 0.6, sy - 4.8, 1.2, 4);
+}
+}
 
 let audioCtx = null;
 let analyser = null;
@@ -1831,6 +2173,11 @@ return Math.max(-42, Math.min(12, angle));
 }
 
 function animationLoop() {
+if (isPlaying) {
+reelAngle += 0.04;
+}
+drawReelDeck();
+
 if (!isPlaying) {
 loopRunning = false;
 return;
@@ -2110,11 +2457,17 @@ if (turntable) turntable.classList.remove("playing");
 if (tonearmEl) tonearmEl.style.transform = `rotate(-32deg)`;
 
 if ("mediaSession" in navigator) navigator.mediaSession.metadata = null;
+drawReelDeck();
 }
 
 if (playBtnLogo) playBtnLogo.addEventListener("click", function (e) { e.preventDefault(); togglePlay(); });
 if (playBtnLogoMobile) playBtnLogoMobile.addEventListener("click", function (e) { e.preventDefault(); togglePlay(); });
 
+drawReelDeck();
+if (!loopRunning) {
+loopRunning = true;
+animationLoop();
+}
 });
 </script>
 </body>
