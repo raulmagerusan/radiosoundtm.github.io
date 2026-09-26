@@ -1819,6 +1819,12 @@ const btnEnMobile = document.getElementById("langEnMobile");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+// Forțează pagina să pornească de la fix în partea de sus la încărcare
+window.scrollTo(0, 0);
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 function determineInitialLanguage() {
 const savedLang = localStorage.getItem("userLang");
 if (savedLang && (savedLang === "ro" || savedLang === "en")) {
