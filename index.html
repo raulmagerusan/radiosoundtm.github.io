@@ -1369,7 +1369,7 @@ x-webkit-airplay="allow"
 <!-- Carduri Extensibile -->
 <div class="about-card expand-card" id="downloadCard">
 <div class="expand-header" id="downloadHeaderToggle">
-<h2 id="txtDownloadTitle">Aplicații Mobile & Auto</h2>
+<h2 id="txtDownloadTitle">Aplicații mobile și auto partenere</h2>
 <svg class="expand-arrow" id="downloadArrow" viewBox="0 0 24 24">
 <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
 </svg>
@@ -1627,7 +1627,7 @@ onAirOff: "Off-Air",
 connectingText: "Se conectează...",
 btnTurntable: "Pick-up",
 btnReel: "Magnetofon",
-downloadTitle: "Aplicații Mobile & Auto",
+downloadTitle: "Aplicații mobile și auto partenere",
 downloadSub: "Ascultă Radio Sound TM de pe telefon și în mașină prin aplicațiile partenere!",
 aboutHeader: "Refining music!",
 aboutBody: `
@@ -2243,6 +2243,7 @@ ctx.fillRect(0, 0, width, height);
 
 let rmsL = 0;
 let rmsR = 0;
+let hasValidData = false;
 
 if (analyser && audioCtx && audioCtx.state === "running") {
 const bufferLength = analyser.fftSize;
@@ -2264,10 +2265,14 @@ const centered = dataArray[i] - 128;
 sumSqR += centered * centered;
 }
 rmsR = Math.sqrt(sumSqR / half);
+
+if (rmsL > 0.5 || rmsR > 0.5) {
+hasValidData = true;
+}
 }
 
 const now = Date.now();
-if (isIOS && (rmsL < 0.5) && !isBuffering) {
+if ((isIOS || !hasValidData) && !isBuffering) {
 const waveL = Math.sin(now / 110) * 22 + Math.sin(now / 50) * 10;
 const waveR = Math.cos(now / 125) * 20 + Math.sin(now / 60) * 12;
 rmsL = 18 + Math.abs(waveL);
@@ -2277,7 +2282,7 @@ rmsR = 18 + Math.abs(waveR);
 targetAngleL = rmsToVuAngle(rmsL * 1.5);
 targetAngleR = rmsToVuAngle(rmsR * 1.4);
 
-if (analyser) {
+if (analyser && hasValidData) {
 const timeDataDraw = new Uint8Array(analyser.fftSize);
 analyser.getByteTimeDomainData(timeDataDraw);
 ctx.lineWidth = 1.5;
@@ -2290,6 +2295,22 @@ let x = 0;
 for (let i = 0; i < timeDataDraw.length; i++) {
 const v = timeDataDraw[i] / 128.0;
 const y = (v * height) / 2;
+if (i === 0) ctx.moveTo(x, y);
+else ctx.lineTo(x, y);
+x += sliceWidth;
+}
+ctx.stroke();
+} else {
+ctx.lineWidth = 1.5;
+ctx.strokeStyle = "#56cb4c";
+ctx.shadowBlur = 8;
+ctx.shadowColor = "#56cb4c";
+ctx.beginPath();
+const sliceWidth = width / 100;
+let x = 0;
+for (let i = 0; i < 100; i++) {
+const v = (1 + Math.sin(i * 0.1 + now / 100) * 0.5 * Math.sin(now / 300)) / 2;
+const y = v * height;
 if (i === 0) ctx.moveTo(x, y);
 else ctx.lineTo(x, y);
 x += sliceWidth;
